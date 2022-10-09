@@ -53,7 +53,7 @@ def createGraph(filename):
             graph.add_edge(stateList[0], state)
     return graph
 
-graph = createGraph('state_neighbors.txt')
+graph = createGraph('a2/state_neighbors.txt')
 States = graph.nodes
 AdjacentRel = graph.edges
 
