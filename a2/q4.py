@@ -224,7 +224,7 @@ def q4(numberOfGenerations, populationSize, tournamentSize, mutationRate):
     # print result
     if p.solution_test():
         print("Solution is found in generation #" + str(i) + ":")
-        stateColor = p.chromosomes[i].printState()
+        stateColor = p.chromosomes[-1].printState()
         stateName = map.regions
         for m in range(len(stateName)): 
             print(stateName[m] + ": " + str(stateColor[m]))
@@ -246,13 +246,14 @@ def q4(numberOfGenerations, populationSize, tournamentSize, mutationRate):
         plt.show()
         plt.close()
     else:
+        print("Didn't find a folution")
         for m in p.chromosomes:
             print(m.fitness)
 
 # try different values
 numberOfGenerations = 5000
-populationSize = 1000
-tournamentSize = 10
+populationSize = 100
+tournamentSize = 2
 mutationRate = 0.02
 
 q4(numberOfGenerations, populationSize, tournamentSize, mutationRate)
