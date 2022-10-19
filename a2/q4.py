@@ -8,6 +8,7 @@ import random
 import sys
 import matplotlib.pyplot as plt
 import numpy as np
+import time
 
 '''
 Step 1: Generate the initial population
@@ -185,6 +186,10 @@ def q4(numberOfGenerations, populationSize, tournamentSize, mutationRate):
     yBests = []
     yWorsts = []
     yAverages = []
+
+    # set timer
+    start_time = time.time()
+    
     i = 0
     while i < numberOfGenerations and not p.solution_test():
         # print stats
@@ -220,10 +225,18 @@ def q4(numberOfGenerations, populationSize, tournamentSize, mutationRate):
             new_p.append(Chromosome(map, tuple(newChros[k])))
         p.chromosomes = tuple(new_p)
         i += 1
-        
+
+    # end timer
+    elapsed_time = time.time() - start_time
+
     # print result
     if p.solution_test():
+        best, worst, mean = p.get_stat()
         print("Solution is found in generation #" + str(i) + ":")
+        print("Running Time: " + str(round(elapsed_time, 5)) + "s")
+        print("Best fitness: " + str(best))
+        print("Worst fitness: " + str(worst))
+        print("Average fitness: " + str(mean) + "\n\n\n")
         stateColor = p.chromosomes[-1].printState()
         stateName = map.regions
         for m in range(len(stateName)): 
@@ -246,14 +259,14 @@ def q4(numberOfGenerations, populationSize, tournamentSize, mutationRate):
         plt.show()
         plt.close()
     else:
-        print("Didn't find a folution")
+        print("Didn't find a solution")
         for m in p.chromosomes:
             print(m.fitness)
 
 # try different values
-numberOfGenerations = 5000
-populationSize = 100
-tournamentSize = 2
-mutationRate = 0.02
+numberOfGenerations = 500
+populationSize = 1000
+tournamentSize = 10
+mutationRate = 0.1
 
 q4(numberOfGenerations, populationSize, tournamentSize, mutationRate)
