@@ -267,9 +267,9 @@ def q4(numberOfGenerations, populationSize, tournamentSize, mutationRate):
         #     print(m.fitness)
 
 # try different values
-numberOfGenerations = 50
+numberOfGenerations = 5000
 populationSize = 100
-tournamentSize = 2
-mutationRate = 0.05
+tournamentSize = 10
+mutationRate = 0.02
 
 q4(numberOfGenerations, populationSize, tournamentSize, mutationRate)
