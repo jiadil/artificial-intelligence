@@ -259,14 +259,17 @@ def q4(numberOfGenerations, populationSize, tournamentSize, mutationRate):
         plt.show()
         plt.close()
     else:
+        best, worst, mean = p.get_stat()
         print("Didn't find a solution")
-        for m in p.chromosomes:
-            print(m.fitness)
+        print("Running Time: " + str(round(elapsed_time, 5)) + "s")
+        print("Best fitness: " + str(best))
+        # for m in p.chromosomes:
+        #     print(m.fitness)
 
 # try different values
-numberOfGenerations = 500
-populationSize = 1000
-tournamentSize = 10
-mutationRate = 0.1
+numberOfGenerations = 50
+populationSize = 100
+tournamentSize = 2
+mutationRate = 0.05
 
 q4(numberOfGenerations, populationSize, tournamentSize, mutationRate)
