@@ -1,8 +1,22 @@
+"""
+q4
+color the map of US and Canada with 4 colors, such that no adjacent states, provinces or territories have the same color.
+"""
+
+
 import random
 import sys
+import matplotlib.pyplot as plt
+import numpy as np
+import time
 
-# map store edges and city names
+'''
+Step 1: Generate the initial population
+populationSize is one of the configurable parameters of the algorithm. Each member of the population is called a stateName. Initially, all nodes of each stateName are colored randomly.
+Hint: You can use a simple array to represent the state of a stateName.
+'''
 class Map:
+    '''This class stores edges and city names'''
     def __init__(self, fname):
         f = open(fname, 'r')
         lines1 = f.readlines()
@@ -35,9 +49,10 @@ class Map:
         #     print(self.regions[i], end = '', sep = '')
         #     print(self.adjacency_matrix[i])
 
+
 class Chromosome:
+    '''This class creates chromosome and define fitness given a state'''
     def __init__(self, map, state = None):
-        
         # if state is given, create a chromosome basd on the state
         if state:
             self.state = state
@@ -52,6 +67,13 @@ class Chromosome:
         # calculate the fitness
         self.fitness = self.fitness_f(map)
     
+    def printState(self):
+        return list(self.state)
+
+    '''
+    Step 2: Determine the fitness of each stateName
+    The fitness function describes how good an answer is, and is used for choosing the parents.
+    ''' 
     # fitness function
     def fitness_f(self, map):
         result = 0
@@ -62,9 +84,8 @@ class Chromosome:
         return result/(2 * map.num_of_edges)
                     
         
-
 class Population:
-
+    '''This class stores chromosomes and gets their stat data'''
     def __init__(self, populationSize, map):
         self.populationSize = populationSize
         self.chromosomes = []
@@ -98,8 +119,13 @@ class Population:
             
         return max_fit, min_fit, mean/self.populationSize 
 
+
+'''
+Step 3: Choose the parents
+In this step, you use the tournament selection method. This method first randomly chooses k members of the population and then chooses the best of them. 
+'''
 def tournament(tournamentSize, population):
-    
+    '''This function generates tournament selection'''
     result = []
     tmp = list(population.chromosomes)
     random.shuffle(tmp)
@@ -117,8 +143,12 @@ def tournament(tournamentSize, population):
         result.append(random_ones[index])
     return tuple(result)
 
-# 这个不确定怎么分x和y 她也没细说
+
+'''
+Step 4: Produce the next generation
+'''
 def crossover(x, y):
+    '''This function crossovers the chosen parents'''
     # l = []
     # for i in range(64):
     #     j = random.randint(0, 1)
@@ -131,8 +161,12 @@ def crossover(x, y):
     ly = list(y[32:])
     return lx + ly
 
-def mutate(arr2D, populationSize, n):
 
+'''
+step 5: mutation
+'''
+def mutate(arr2D, populationSize, n):
+    '''This function randomly mutates a certain number of genes in the whole new population'''
     s = set()
     while len(s) < n:
         i = random.randint(0, populationSize - 1)
@@ -144,59 +178,98 @@ def mutate(arr2D, populationSize, n):
             
     
 def q4(numberOfGenerations, populationSize, tournamentSize, mutationRate):
-    
+    '''This function gets and prints result'''
     # create initial population and map
     map = Map(sys.path[0] + '/state_neighbors.txt')
-    print(map.num_of_edges)
     p = Population(populationSize, map)
+    # create y-list to store stat data
+    yBests = []
+    yWorsts = []
+    yAverages = []
+
+    # set timer
+    start_time = time.time()
     
     i = 0
     while i < numberOfGenerations and not p.solution_test():
-        
         # print stats
         best, worst, mean = p.get_stat()
         print("Generation #" + str(i))
         print("Best fitness: " + str(best))
         print("Worst fitness: " + str(worst))
         print("Average fitness: " + str(mean) + "\n\n\n")
+
+        # store data
+        yBests.append(str(best))
+        yWorsts.append(str(worst))
+        yAverages.append(str(mean))
         
-        # step 3: choose the parents
+        # choose parents (from step 3)
         parents = tournament(tournamentSize, p)
         newChros = []
         
-        # step 4: Produce the next generation
+        # produce next generation (from step 4)
         for j in range(populationSize):
             tmp = random.sample(parents, 2)
             chro = crossover(tmp[0].state, tmp[1].state)
             newChros.append(chro)
             
-        # step 5: mutation
+        # mutation (from step 5)
         mutate(newChros, populationSize, int(populationSize * 64 * mutationRate))
         
-        # step 6: replace the old population and repeat
+        '''
+        step 6: replace the old population and repeat
+        '''
         new_p = []
         for k in range(populationSize):
             new_p.append(Chromosome(map, tuple(newChros[k])))
         p.chromosomes = tuple(new_p)
         i += 1
-        
-    # TODO:print result
-    # if p.solution_test():
-    #     print(i)
-    # else:
-    #     for i in p.chromosomes:
-    #         print(i.fitness)
 
+    # end timer
+    elapsed_time = time.time() - start_time
 
+    # print result
+    if p.solution_test():
+        best, worst, mean = p.get_stat()
+        print("Solution is found in generation #" + str(i) + ":")
+        print("Running Time: " + str(round(elapsed_time, 5)) + "s")
+        print("Best fitness: " + str(best))
+        print("Worst fitness: " + str(worst))
+        print("Average fitness: " + str(mean) + "\n\n\n")
+        stateColor = p.chromosomes[-1].printState()
+        stateName = map.regions
+        for m in range(len(stateName)): 
+            print(stateName[m] + ": " + str(stateColor[m]))
 
-        
-            
-            
+        # plot the graph
+        x = []
+        for n in range(i):
+            x.append(n)
+        yBest = [float(y) for y in yBests]
+        yWorst = [float(y) for y in yWorsts]
+        yAverage = [float(y) for y in yAverages]
+        plt.xlabel('Generation')
+        plt.ylabel('Fitness')
+        plt.yticks(np.arange(0.50,1.05,0.05))
+        plt.plot(x, yBest, label = "Best")
+        plt.plot(x, yWorst, label = "Worst")
+        plt.plot(x, yAverage, label = "Average")
+        plt.legend()
+        plt.show()
+        plt.close()
+    else:
+        best, worst, mean = p.get_stat()
+        print("Didn't find a solution")
+        print("Running Time: " + str(round(elapsed_time, 5)) + "s")
+        print("Best fitness: " + str(best))
+        # for m in p.chromosomes:
+        #     print(m.fitness)
+
 # try different values
 numberOfGenerations = 5000
-populationSize = 1000
+populationSize = 100
 tournamentSize = 10
 mutationRate = 0.02
 
 q4(numberOfGenerations, populationSize, tournamentSize, mutationRate)
-
